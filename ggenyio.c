@@ -2,65 +2,85 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-char* get_file_name(int nbv, int nbe, int nbr, int nbb)
+#include "ggenygraph.h"
+
+char* get_file_name(Graph *graph)
 {
-    char *file_name;
-    sprintf(file_name, "v%d_a%d_r%d_b%d.dat", nbv, nbe, nbr, nbb);
+    char *file_name = (char *)malloc(255);
+
+    sprintf(file_name, "out/v%d_a%d_r%d_b%d.dat",
+        graph->nb_vertices,
+        graph->nb_arcs,
+        graph->nb_requests,
+        graph->nb_blockages
+    );
+
     return file_name;
 }
 
-bool output_meta(
-    int **vertices,
-    int **arcs,
-    int **requests,
-    int **blockages,
-    int nbv,
-    int nbe,
-    int nbr,
-    int nbb)
+bool output_meta(Graph *graph)
 {
     int i;
     char *file_name;
-    FILE file;
+    FILE *file;
 
-    file_name = get_file_name(nbv, nbe, nbr, nbb);
+    // holders
+    Vertex *v;
+    Arc *a;
+    Request *r;
+    Blockage *b;
+
+    file_name = get_file_name(graph);
     file = fopen(file_name, "w+");
 
     if (!file) {
+        printf("[ERR] failed to open file.\n");
         return false;
     } else {
         fprintf(file, "INSTANCE_NAME\t%s\n", file_name);
-        fprintf(file, "NB_VERTICES\t%d\n", nbv);
-        fprintf(file, "NB_EDGES\t%d\n", nbe);
-        fprintf(file, "NB_REQUESTS\t%d\n", nbr);
-        fprintf(file, "NB_BLOCKAGES\t%d\n", nbb);
+        fprintf(file, "NB_VERTICES\t\t%d\n", graph->nb_vertices);
+        fprintf(file, "NB_EDGES\t\t%d\n", graph->nb_arcs);
+        fprintf(file, "NB_REQUESTS\t\t%d\n", graph->nb_requests);
+        fprintf(file, "NB_BLOCKAGES\t%d\n", graph->nb_blockages);
+        fprintf(file, "\n");
 
         fprintf(file, "VERTICES\n");        
-        for (i=0; i < nbv; i++) {
-            fprintf(file, "%d\t%d\t%d\n", i + 1, vertices[i][0], vertices[i][1]);
+        for (i = 0; i < graph->nb_vertices; i++) {
+            v = graph->vertices[i];
+            fprintf(file, "%d\t%d\t%d\n", v->id + 1, v->x, v->y);
         }
-
         fprintf(file, "\n");
 
         fprintf(file, "ARCS\n"); 
-        for (i = 0; i < nbe; i++) {
-            fprintf(file, "%d\t%d\t%d\n", arcs[i][0], arcs[i][1], arcs[i][2]);
+        for (i = 0; i < graph->nb_arcs; i++) {
+            a = graph->arcs[i];
+            fprintf(file, "%d\t%d\t%d\n", a->source, a->target, a->cost);
         }
-
         fprintf(file, "\n");
 
         fprintf(file, "REQUESTS\n");
-        for (i = 0; i < nbr; i++) {
-            fprintf(file, "%d\t%d\t%d\n", requests[i][0], requests[i][1], requests[i][2], requests[i][3]);
+        for (i = 0; i < graph->nb_requests; i++) {
+            r = graph->requests[i];
+            fprintf(file, "%d\t%d\t%d\n",
+                r->source,
+                r->target,
+                r->quantity,
+                r->type
+            );
         }
-
         fprintf(file, "\n");
 
         fprintf(file, "BLOCKAGES\n");
-        for (i = 0; i < nbb; i++) {
-            fprintf(file, "%d\t%d\t%d\n", blockages[i][0], blockages[i][1], blockages[i][2], blockages[i][3], blockages[i][4]);
+        for (i = 0; i < graph->nb_blockages; i++) {
+            b = graph->blockages[i];
+            fprintf(file, "%d\t%d\t%d\n",
+                b->source,
+                b->target,
+                b->earliest_start,
+                b->latest_end,
+                b->duration
+            );
         }
-
         fprintf(file, "\n");
 
         fprintf(file, "END");
@@ -70,15 +90,7 @@ bool output_meta(
     }
 }
 
-bool output_opl(
-    int **vertices,
-    int **arcs,
-    int **requests,
-    int **blockages,
-    int nbv,
-    int nbe,
-    int nbr,
-    int nbb)
+bool output_opl(Graph *graph)
 {
     return false;
 }
