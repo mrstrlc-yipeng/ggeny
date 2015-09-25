@@ -51,7 +51,7 @@ void test_ggenygraph(void) {
 }
 
 void test_ggenyio(void) {
-    Graph *graph = compute_grid_graph(3, 1, 0, 0);
+    Graph *graph = compute_grid_graph(3, 1, 0, 1);
 
     if (output_meta(graph)) {
         printf("META output file ok\n");

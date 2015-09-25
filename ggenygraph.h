@@ -9,6 +9,7 @@ typedef struct Blockage {
     int id;
     int source;
     int target;
+    int arc_cost;
     long earliest_start;
     long latest_end;
     long duration;
@@ -75,6 +76,8 @@ Graph *init_grid_graph(int size, int nb_requests, int nb_blockages);
 void compute_grid_vertices(Graph *graph, int o_x, int o_y, int unit_cost);
 void compute_grid_arcs(Graph *graph, int unit_cost);
 void compute_grid_directions(Graph *graph);
+void compute_requests(Graph *graph);
+void compute_blockages(Graph *graph);
 
 
 Graph* compute_grid_graph(int size, int unit_cost, int nb_requests, int nb_blockages)
@@ -88,6 +91,7 @@ Graph* compute_grid_graph(int size, int unit_cost, int nb_requests, int nb_block
     compute_grid_vertices(graph, origin_x, origin_y, unit_cost);
     compute_grid_arcs(graph, unit_cost);
     compute_grid_directions(graph);
+    compute_blockages(graph);
 
     return graph;
 }
@@ -290,6 +294,47 @@ void compute_grid_directions(Graph *graph)
 
     set_grid_direction_1(graph, graph->vertices[origin], marks);
     set_grid_direction_2(graph, marks);
+
+    free(marks);
+}
+
+void compute_requests(Graph *graph)
+{
+
+}
+
+void compute_blockages(Graph *graph)
+{
+    int i;
+
+    int random_id;
+    Arc *random_arc;
+
+    int *marks = (int *)malloc(sizeof(int) * graph->nb_arcs);
+    for (i = 0; i < graph->nb_arcs; i++) {
+        marks[i] = 0;
+    }
+
+    i = 0;
+    while (i < graph->nb_blockages) {
+        random_id = rand_ij(&g_default_seed, 0, graph->nb_arcs);
+        if (!marks[random_id]) {
+            marks[random_id] = 1;
+            random_arc = graph->arcs[random_id];
+
+            graph->blockages[i]->id = i;
+            graph->blockages[i]->source = random_arc->source;
+            graph->blockages[i]->target = random_arc->target;
+            graph->blockages[i]->arc_cost = random_arc->cost;
+            
+            // TODO: 
+            graph->blockages[i]->earliest_start = -1;
+            graph->blockages[i]->latest_end = -1;
+            graph->blockages[i]->duration = -1;
+
+            i++;
+        }
+    }
 
     free(marks);
 }

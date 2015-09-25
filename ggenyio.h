@@ -104,12 +104,13 @@ bool output_meta(Graph *graph)
         fprintf(file, "BLOCKAGES\n");
         for (i = 0; i < graph->nb_blockages; i++) {
             b = graph->blockages[i];
-            fprintf(file, "%d\t%d\t%lu\t%lu\t%lu\n",
+            fprintf(file, "%d\t%d\t%d\n",
                 b->source,
                 b->target,
-                b->earliest_start,
-                b->latest_end,
-                b->duration
+                b->arc_cost
+                //b->earliest_start,
+                //b->latest_end,
+                //b->duration
             );
         }
         fprintf(file, "\n");
@@ -181,12 +182,13 @@ bool output_opl(Graph *graph)
         fprintf(file, "blockages = {\n");
         for (i = 0; i < graph->nb_blockages; i++) {
             b = graph->blockages[i];
-            fprintf(file, "<%d, %d, %lu, %lu, %lu>",
-                b->source,
-                b->target,
-                b->earliest_start,
-                b->latest_end,
-                b->duration
+            fprintf(file, "<%d, %d, %d>",
+                b->source + 1,
+                b->target + 1,
+                b->arc_cost
+                //b->earliest_start,
+                //b->latest_end,
+                //b->duration
             );
             if (i != graph->nb_blockages - 1) {
                 fprintf(file, ",");
@@ -194,15 +196,6 @@ bool output_opl(Graph *graph)
             fprintf(file, "\n");
         }
         fprintf(file, "};\n\n");
-
-        /* for current model version, one blockage is (stupidly) required */
-        a = graph->arcs[rand_ij(&g_default_seed, 0, graph->nb_arcs - 1)];
-        fprintf(file, "blockage = <%d, %d, %d>;\n",
-            a->source + 1,
-            a->target + 1,
-            a->cost
-        );
-        /******************************************************************/
 
         fprintf(file, "// END\n");
 
