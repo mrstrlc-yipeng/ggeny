@@ -2,8 +2,7 @@
 #include <stdint.h>
 
 #include "ggenygraph.h"
-
-#include "ggenyio.c"
+#include "ggenyio.h"
 
 void test_ggenygraph(void);
 void test_ggenyio(void);
@@ -55,9 +54,15 @@ void test_ggenyio(void) {
     Graph *graph = compute_grid_graph(3, 1, 0, 0);
 
     if (output_meta(graph)) {
-        printf("Output file ok\n");
+        printf("META output file ok\n");
     } else {
-        printf("Output file failed \n");
+        printf("META output file failed \n");
+    }
+
+    if (output_opl(graph)) {
+        printf("OPL output file ok\n");
+    } else {
+        printf("OPL output file failed \n");
     }
     
     free_graph(graph);
