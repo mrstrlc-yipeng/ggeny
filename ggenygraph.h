@@ -75,6 +75,8 @@ Graph *init_grid_graph(int size, int nb_requests, int nb_blockages);
 void compute_grid_vertices(Graph *graph, int o_x, int o_y, int unit_cost);
 void compute_grid_arcs(Graph *graph, int unit_cost);
 void compute_grid_directions(Graph *graph);
+void compute_requests(Graph *graph);
+void compute_blockages(Graph *graph);
 
 
 Graph* compute_grid_graph(int size, int unit_cost, int nb_requests, int nb_blockages)
@@ -292,6 +294,16 @@ void compute_grid_directions(Graph *graph)
     set_grid_direction_2(graph, marks);
 
     free(marks);
+}
+
+void compute_requests(Graph *graph)
+{
+
+}
+
+void compute_blockages(Graph *graph)
+{
+
 }
 
 void free_graph(Graph *graph)
