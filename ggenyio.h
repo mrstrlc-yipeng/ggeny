@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sys/time.h>
+
+#include "lib/hashids.h"
 
 #include "ggenygraph.h"
 #include "ggenyrand.h"
@@ -15,15 +18,35 @@ const int FILE_NAME_OPL = 1;
 
 char* get_file_name(Graph *graph, int is_opl)
 {
+    // for hashids
+    struct hashids_t *hashids;
+    char hash[512];
+    unsigned long long numbers[1];
+
     char *file_name = (char *)malloc(255);
 
-    sprintf(file_name, "v%d_a%d_r%d_b%d_%s.dat",
+    // generate the base of the file name
+    sprintf(file_name, "v%d_a%d_r%d_b%d_%s",
         graph->nb_vertices,
         graph->nb_arcs,
         graph->nb_requests,
         graph->nb_blockages,
         is_opl ? "OPL" : "META"
     );
+
+    // force the number to be the current time in second
+    gettimeofday(&g_tval, NULL);
+    numbers[0] = g_tval.tv_sec;
+
+    // generate an unique id by hashids
+    hashids = hashids_init3(file_name, 0, HASHIDS_DEFAULT_ALPHABET);
+    hashids_encode(hashids, hash, sizeof(numbers) / sizeof(unsigned long long), numbers);
+
+    strcat(file_name, "_");
+    strcat(file_name, hash);
+    strcat(file_name, ".dat");
+
+    hashids_free(hashids);
 
     return file_name;
 }
@@ -141,11 +164,9 @@ bool output_opl(Graph *graph)
     } else {
         fprintf(file, "n = %d;\n", graph->nb_vertices);
         fprintf(file, "m = %d;\n", graph->nb_arcs);
-        fprintf(file, "r = %d;\n", graph->nb_requests);
-        fprintf(file, "b = %d;\n", graph->nb_blockages);
-        /* for current model version, O & D is (stupidly) required */
-        fprintf(file, "O = 0;\nD = 0;\n");
-        /***********************************************************/
+        // TODO: number of requests & blockages for next model version
+        //fprintf(file, "r = %d;\n", graph->nb_requests);
+        //fprintf(file, "b = %d;\n", graph->nb_blockages);
         fprintf(file, "\n");
 
         fprintf(file, "arcs = {\n"); 
@@ -163,6 +184,8 @@ bool output_opl(Graph *graph)
         }
         fprintf(file, "};\n\n");
 
+        // TODO: requests for next model version
+        /*
         fprintf(file, "requests = {\n");
         for (i = 0; i < graph->nb_requests; i++) {
             r = graph->requests[i];
@@ -178,7 +201,10 @@ bool output_opl(Graph *graph)
             fprintf(file, "\n");
         }
         fprintf(file, "};\n\n");
+        */
 
+        // TODO: blockages for next model version
+        /*
         fprintf(file, "blockages = {\n");
         for (i = 0; i < graph->nb_blockages; i++) {
             b = graph->blockages[i];
@@ -196,6 +222,21 @@ bool output_opl(Graph *graph)
             fprintf(file, "\n");
         }
         fprintf(file, "};\n\n");
+        */
+
+        // write a section with only one blockage for current model version
+        // then write the origin and destination of the blockage
+        if (1 == graph->nb_blockages) {
+            b = graph->blockages[0];
+            fprintf(file, "blockage = <%d, %d, %d>;\n\n",
+                b->source + 1,
+                b->target + 1,
+                b->arc_cost
+            );
+            fprintf(file, "O = %d;\nD = %d;\n\n", b->source + 1, b->target + 1);
+        } else {
+            fprintf(file, "O = 0;\nD = 0;\n\n");
+        }
 
         fprintf(file, "// END\n");
 
