@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include "ggenyrand.h"
 
@@ -55,7 +56,8 @@ typedef struct Graph {
 } Graph;
 
 
-// random seed as global var
+// random seed
+struct timeval g_tval;
 int g_default_seed = 4;
 
 
@@ -128,6 +130,10 @@ Graph *init_grid_graph(int size, int nb_requests, int nb_blockages)
     for (i = 0; i < nb_blockages; i++) {
         g->blockages[i] = (Blockage *)malloc(sizeof(Blockage));
     }
+
+    // re-initialize the random seed by system time
+    gettimeofday(&g_tval, NULL);
+    g_default_seed = g_tval.tv_sec;
 
     return g;
 }

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "lib/hashids.h"
+
 #include "ggenygraph.h"
 #include "ggenyio.h"
 
@@ -15,7 +17,7 @@ int main(void) {
 
 void test_ggenygraph(void) {
     int i, j;
-    Graph *graph = compute_grid_graph(3, 1, 0, 0);
+    Graph *graph = compute_grid_graph(3, 1, 0, 1);
 
     printf("Graph %dx%d: %d vertices & %d arcs\n\n", graph->size, graph->size, graph->nb_vertices, graph->nb_arcs);
     printf("\n");
@@ -40,18 +42,30 @@ void test_ggenygraph(void) {
 
     printf("3. Arcs\n");
     for (i = 0; i < graph->nb_arcs; i++) {
-        printf("a[%d] (%d-%d), c = %d\n",
+        printf("\ta[%d] (%d-%d), c = %d\n",
             graph->arcs[i]->id,
             graph->arcs[i]->source+1,
             graph->arcs[i]->target+1,
-            graph->arcs[i]->cost);
+            graph->arcs[i]->cost
+        );
+    }
+
+    printf("5. Blockages\n");
+    for (i = 0; i < graph->nb_blockages; i++) {
+        printf("\tb[%d] (%d-%d)\n",
+            graph->blockages[i]->id,
+            graph->blockages[i]->source+1,
+            graph->blockages[i]->target+1
+        );
     }
 
     free_graph(graph);
 }
 
 void test_ggenyio(void) {
-    Graph *graph = compute_grid_graph(3, 1, 0, 1);
+    Graph *graph = compute_grid_graph(5, 1, 0, 1);
+
+    printf("filename = %s\n\n", get_file_name(graph, true));
 
     if (output_meta(graph)) {
         printf("META output file ok\n");
