@@ -75,5 +75,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# Project spec
-out/*.dat
+# Project generated data files
+export/*.dat

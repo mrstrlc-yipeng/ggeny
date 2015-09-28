@@ -4,7 +4,7 @@
 #include <string.h>
 #include <sys/time.h>
 
-#include "lib/hashids.h"
+#include "../lib/hashids/hashids.h"
 
 #include "ggenygraph.h"
 #include "ggenyrand.h"
@@ -12,7 +12,7 @@
 #ifndef GGENY_IO_H
 #define GGENY_IO_H
 
-const char *DIR = "out/";
+const char *DIR = "export/";
 const int FILE_NAME_META = 0;
 const int FILE_NAME_OPL = 1;
 

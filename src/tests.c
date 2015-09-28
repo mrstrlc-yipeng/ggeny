@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "lib/hashids.h"
+#include "../lib/hashids/hashids.h"
 
 #include "ggenygraph.h"
 #include "ggenyio.h"
