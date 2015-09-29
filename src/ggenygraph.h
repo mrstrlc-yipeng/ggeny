@@ -10,7 +10,6 @@ typedef struct Blockage {
     int id;
     int source;
     int target;
-    int arc_cost;
     long earliest_start;
     long latest_end;
     long duration;
@@ -331,7 +330,6 @@ void compute_blockages(Graph *graph)
             graph->blockages[i]->id = i;
             graph->blockages[i]->source = random_arc->source;
             graph->blockages[i]->target = random_arc->target;
-            graph->blockages[i]->arc_cost = random_arc->cost;
             
             // TODO: 
             graph->blockages[i]->earliest_start = -1;

@@ -63,7 +63,7 @@ void test_ggenygraph(void) {
 }
 
 void test_ggenyio(void) {
-    Graph *graph = compute_grid_graph(5, 1, 0, 1);
+    Graph *graph = compute_grid_graph(3, 1, 0, 2);
 
     printf("filename = %s\n\n", get_file_name(graph, true));
 
