@@ -127,10 +127,9 @@ bool output_meta(Graph *graph)
         fprintf(file, "BLOCKAGES\n");
         for (i = 0; i < graph->nb_blockages; i++) {
             b = graph->blockages[i];
-            fprintf(file, "%d\t%d\t%d\n",
+            fprintf(file, "%d\t%d\n",
                 b->source,
-                b->target,
-                b->arc_cost
+                b->target
                 //b->earliest_start,
                 //b->latest_end,
                 //b->duration
@@ -164,9 +163,6 @@ bool output_opl(Graph *graph)
     } else {
         fprintf(file, "n = %d;\n", graph->nb_vertices);
         fprintf(file, "m = %d;\n", graph->nb_arcs);
-        // TODO: number of requests & blockages for next model version
-        //fprintf(file, "r = %d;\n", graph->nb_requests);
-        //fprintf(file, "b = %d;\n", graph->nb_blockages);
         fprintf(file, "\n");
 
         fprintf(file, "arcs = {\n"); 
@@ -184,8 +180,6 @@ bool output_opl(Graph *graph)
         }
         fprintf(file, "};\n\n");
 
-        // TODO: requests for next model version
-        /*
         fprintf(file, "requests = {\n");
         for (i = 0; i < graph->nb_requests; i++) {
             r = graph->requests[i];
@@ -201,17 +195,15 @@ bool output_opl(Graph *graph)
             fprintf(file, "\n");
         }
         fprintf(file, "};\n\n");
-        */
 
-        // TODO: blockages for next model version
-        /*
         fprintf(file, "blockages = {\n");
         for (i = 0; i < graph->nb_blockages; i++) {
             b = graph->blockages[i];
-            fprintf(file, "<%d, %d, %d>",
+            fprintf(file, "<%d, %d>",
                 b->source + 1,
-                b->target + 1,
-                b->arc_cost
+                b->target + 1
+
+                // TODO: blockage timescale for next model version
                 //b->earliest_start,
                 //b->latest_end,
                 //b->duration
@@ -222,21 +214,6 @@ bool output_opl(Graph *graph)
             fprintf(file, "\n");
         }
         fprintf(file, "};\n\n");
-        */
-
-        // write a section with only one blockage for current model version
-        // then write the origin and destination of the blockage
-        if (1 == graph->nb_blockages) {
-            b = graph->blockages[0];
-            fprintf(file, "blockage = <%d, %d, %d>;\n\n",
-                b->source + 1,
-                b->target + 1,
-                b->arc_cost
-            );
-            fprintf(file, "O = %d;\nD = %d;\n\n", b->source + 1, b->target + 1);
-        } else {
-            fprintf(file, "O = 0;\nD = 0;\n\n");
-        }
 
         fprintf(file, "// END\n");
 

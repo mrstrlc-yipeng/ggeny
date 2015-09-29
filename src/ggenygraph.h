@@ -10,7 +10,6 @@ typedef struct Blockage {
     int id;
     int source;
     int target;
-    int arc_cost;
     long earliest_start;
     long latest_end;
     long duration;
@@ -309,6 +308,42 @@ void compute_requests(Graph *graph)
 
 }
 
+void verify_nb_blockage(Graph *graph)
+{
+    // in graph bigger than 2x2, there are 4 corners,
+    // which means there are 8 arcs linked with corners,
+    // while the graph 2x2 cannot have any blockages, not useful.
+    // so 8 arcs at corner make sens
+    int nb_arcs_corner = 8;
+    int nb_blockages_max = graph->nb_arcs - nb_arcs_corner;
+
+    if (graph->nb_blockages > nb_blockages_max) {
+        graph->nb_blockages = nb_blockages_max;
+    }
+}
+
+int is_arc_at_corner(Graph *graph, Arc *arc)
+{
+    int source_deg = graph->vertices[arc->source]->nb_adjacencies;
+    int target_deg = graph->vertices[arc->target]->nb_adjacencies;
+
+    // corner vertices have only 2 adjacencies
+    // arcs linked with corners should not be blockages
+    return source_deg == 2 || target_deg == 2;
+}
+
+void set_blockage_attr(Graph *graph, int blockage_id, Arc *blocked_arc)
+{
+    graph->blockages[blockage_id]->id = blockage_id;
+    graph->blockages[blockage_id]->source = blocked_arc->source;
+    graph->blockages[blockage_id]->target = blocked_arc->target;
+    
+    // TODO: 
+    graph->blockages[blockage_id]->earliest_start = -1;
+    graph->blockages[blockage_id]->latest_end = -1;
+    graph->blockages[blockage_id]->duration = -1;
+}
+
 void compute_blockages(Graph *graph)
 {
     int i;
@@ -321,6 +356,8 @@ void compute_blockages(Graph *graph)
         marks[i] = 0;
     }
 
+    verify_nb_blockage(graph);
+
     i = 0;
     while (i < graph->nb_blockages) {
         random_id = rand_ij(&g_default_seed, 0, graph->nb_arcs);
@@ -328,17 +365,10 @@ void compute_blockages(Graph *graph)
             marks[random_id] = 1;
             random_arc = graph->arcs[random_id];
 
-            graph->blockages[i]->id = i;
-            graph->blockages[i]->source = random_arc->source;
-            graph->blockages[i]->target = random_arc->target;
-            graph->blockages[i]->arc_cost = random_arc->cost;
-            
-            // TODO: 
-            graph->blockages[i]->earliest_start = -1;
-            graph->blockages[i]->latest_end = -1;
-            graph->blockages[i]->duration = -1;
-
-            i++;
+            if (!is_arc_at_corner(graph, random_arc)) {
+                set_blockage_attr(graph, i, random_arc);
+                i++;
+            }
         }
     }
 
