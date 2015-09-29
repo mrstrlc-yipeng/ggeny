@@ -308,6 +308,20 @@ void compute_requests(Graph *graph)
 
 }
 
+void verify_nb_blockage(Graph *graph)
+{
+    // in graph bigger than 2x2, there are 4 corners,
+    // which means there are 8 arcs linked with corners,
+    // while the graph 2x2 cannot have any blockages, not useful.
+    // so 8 arcs at corner make sens
+    int nb_arcs_corner = 8;
+    int nb_blockages_max = graph->nb_arcs - nb_arcs_corner;
+
+    if (graph->nb_blockages > nb_blockages_max) {
+        graph->nb_blockages = nb_blockages_max;
+    }
+}
+
 int is_arc_at_corner(Graph *graph, Arc *arc)
 {
     int source_deg = graph->vertices[arc->source]->nb_adjacencies;
@@ -341,6 +355,8 @@ void compute_blockages(Graph *graph)
     for (i = 0; i < graph->nb_arcs; i++) {
         marks[i] = 0;
     }
+
+    verify_nb_blockage(graph);
 
     i = 0;
     while (i < graph->nb_blockages) {
