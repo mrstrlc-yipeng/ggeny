@@ -308,13 +308,34 @@ void compute_requests(Graph *graph)
 
 }
 
+int is_arc_at_corner(Graph *graph, Arc *arc)
+{
+    int source_deg = graph->vertices[arc->source]->nb_adjacencies;
+    int target_deg = graph->vertices[arc->target]->nb_adjacencies;
+
+    // corner vertices have only 2 adjacencies
+    // arcs linked with corners should not be blockages
+    return source_deg == 2 || target_deg == 2;
+}
+
+void set_blockage_attr(Graph *graph, int blockage_id, Arc *blocked_arc)
+{
+    graph->blockages[blockage_id]->id = blockage_id;
+    graph->blockages[blockage_id]->source = blocked_arc->source;
+    graph->blockages[blockage_id]->target = blocked_arc->target;
+    
+    // TODO: 
+    graph->blockages[blockage_id]->earliest_start = -1;
+    graph->blockages[blockage_id]->latest_end = -1;
+    graph->blockages[blockage_id]->duration = -1;
+}
+
 void compute_blockages(Graph *graph)
 {
     int i;
 
     int random_id;
     Arc *random_arc;
-    int is_corner;
 
     int *marks = (int *)malloc(sizeof(int) * graph->nb_arcs);
     for (i = 0; i < graph->nb_arcs; i++) {
@@ -328,21 +349,8 @@ void compute_blockages(Graph *graph)
             marks[random_id] = 1;
             random_arc = graph->arcs[random_id];
 
-            // corner vertices have only 2 adjacencies
-            // arcs linked with corners should not be blockages
-            is_corner = graph->vertices[random_arc->source]->nb_adjacencies == 2
-                || graph->vertices[random_arc->target]->nb_adjacencies == 2;
-
-            if (!is_corner) {
-                graph->blockages[i]->id = i;
-                graph->blockages[i]->source = random_arc->source;
-                graph->blockages[i]->target = random_arc->target;
-                
-                // TODO: 
-                graph->blockages[i]->earliest_start = -1;
-                graph->blockages[i]->latest_end = -1;
-                graph->blockages[i]->duration = -1;
-
+            if (!is_arc_at_corner(graph, random_arc)) {
+                set_blockage_attr(graph, i, random_arc);
                 i++;
             }
         }
