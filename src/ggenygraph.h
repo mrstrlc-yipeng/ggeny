@@ -314,6 +314,7 @@ void compute_blockages(Graph *graph)
 
     int random_id;
     Arc *random_arc;
+    int is_corner;
 
     int *marks = (int *)malloc(sizeof(int) * graph->nb_arcs);
     for (i = 0; i < graph->nb_arcs; i++) {
@@ -327,16 +328,23 @@ void compute_blockages(Graph *graph)
             marks[random_id] = 1;
             random_arc = graph->arcs[random_id];
 
-            graph->blockages[i]->id = i;
-            graph->blockages[i]->source = random_arc->source;
-            graph->blockages[i]->target = random_arc->target;
-            
-            // TODO: 
-            graph->blockages[i]->earliest_start = -1;
-            graph->blockages[i]->latest_end = -1;
-            graph->blockages[i]->duration = -1;
+            // corner vertices have only 2 adjacencies
+            // arcs linked with corners should not be blockages
+            is_corner = graph->vertices[random_arc->source]->nb_adjacencies == 2
+                || graph->vertices[random_arc->target]->nb_adjacencies == 2;
 
-            i++;
+            if (!is_corner) {
+                graph->blockages[i]->id = i;
+                graph->blockages[i]->source = random_arc->source;
+                graph->blockages[i]->target = random_arc->target;
+                
+                // TODO: 
+                graph->blockages[i]->earliest_start = -1;
+                graph->blockages[i]->latest_end = -1;
+                graph->blockages[i]->duration = -1;
+
+                i++;
+            }
         }
     }
 
