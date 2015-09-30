@@ -8,11 +8,12 @@
 
 void test_ggenygraph(void);
 void test_ggenyio(void);
+void generate(void);
 
-int main(void) {
-    test_ggenygraph();
-    test_ggenyio();
-    return 0;
+void main(int argc, char **argv) {
+    //test_ggenygraph();
+    //test_ggenyio();
+    generate();
 }
 
 void test_ggenygraph(void) {
@@ -80,4 +81,20 @@ void test_ggenyio(void) {
     }
     
     free_graph(graph);
+}
+
+void generate(void) {
+    Graph *graph;
+    int i;
+
+    for (i = 3; i <= 10; i++) {
+        // generate grid graph from 3x3 to 10x10 with only 1 blockage
+        graph = compute_grid_graph(i, 1, 0, 1);
+
+        if (output_opl(graph)) {
+            printf("Grid %dx%d output file\t[OK]\n", i, i);
+        } else {
+            printf("Grid %dx%d output file\t[Failed]\n", i, i);
+        }
+    }
 }
