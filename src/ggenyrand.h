@@ -1,7 +1,15 @@
 #ifndef GGENY_RAND_H
 #define GGENY_RAND_H
 
-float _randp(int *ix){
+// function declarations
+// major feature functions
+int rand_ij(int *seed, int i, int j);
+
+// utilitiy functions
+float _randp(int *ix);
+
+float _randp(int *ix)
+{
     int xhi, xalo, leftlo, fhi, k;
     
     const int A     = 16807;
@@ -22,7 +30,8 @@ float _randp(int *ix){
 }
 
 // rand an integer in the interval [i,j]
-int rand_ij(int *seed, int i, int j){
+int rand_ij(int *seed, int i, int j)
+{
     _randp(seed);
     return  (int)((double)*seed/((double)2147483647/((double)(j-i+1))))+i;
 }//end_get_rand_ij
