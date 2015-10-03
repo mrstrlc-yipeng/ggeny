@@ -71,6 +71,9 @@ void set_arc_attr(Graph *graph, int arc_id, int source_id, int target_id, int co
 void reverse_direction(Arc *arc);
 void set_grid_direction_1(Graph *graph, Vertex *v, int *marks);
 void set_grid_direction_2(Graph *graph, int *marks);
+void verify_nb_blockage(Graph *graph);
+int is_arc_at_corner(Graph *graph, Arc *arc);
+void set_blockage_attr(Graph *graph, int blockage_id, Arc *blocked_arc);
 
 // internal feature functions
 Graph *init_grid_graph(int size, int nb_requests, int nb_blockages);

@@ -16,6 +16,16 @@ const char *DIR = "export/";
 const int FILE_NAME_META = 0;
 const int FILE_NAME_OPL = 1;
 
+// function declarations
+// major feature functions
+bool output_meta(Graph *graph);
+bool output_opl(Graph *graph);
+
+// utilitiy functions
+char* get_file_name(Graph *graph, int is_opl);
+FILE* get_file(char *file_name);
+
+
 char* get_file_name(Graph *graph, int is_opl)
 {
     // for hashids
