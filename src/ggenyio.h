@@ -95,7 +95,7 @@ bool output_meta(Graph *graph)
     } else {
         fprintf(file, "INSTANCE_NAME\t%s\n", file_name);
         fprintf(file, "NB_VERTICES\t\t%d\n", graph->nb_vertices);
-        fprintf(file, "NB_EDGES\t\t%d\n", graph->nb_arcs);
+        fprintf(file, "NB_ARCS\t\t%d\n", graph->nb_arcs);
         fprintf(file, "NB_REQUESTS\t\t%d\n", graph->nb_requests);
         fprintf(file, "NB_BLOCKAGES\t%d\n", graph->nb_blockages);
         fprintf(file, "\n");
