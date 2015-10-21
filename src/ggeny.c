@@ -6,23 +6,30 @@
 #include "ggenyio.h"
 #include "ggenyrand.h"
 
+// flags for display help message
+static int is_help = 0;
+
 // flags for graph file output types
 static int is_output_meta = 1;
 static int is_output_opl = 1;
 
+void print_usage();
+
 void main(int argc, char **argv)
 {
     // arguments for graph generation
-    int grid_size;
-    int unit_cost;
-    int nb_requests;
-    int nb_blockages;
+    int grid_size = 3;
+    int unit_cost = 1;
+    int nb_requests = 0;
+    int nb_blockages = 1;
 
     Graph *graph;
 
     // arguments for options reading
     int opt;
     static struct option long_options[] = {
+        {"help", no_argument, 0, 'h'},
+
         {"without-meta", no_argument, &is_output_meta, 0},
         {"without-opl",  no_argument, &is_output_opl,  0},
 
@@ -38,7 +45,7 @@ void main(int argc, char **argv)
         // getopt_long stores the option index here.
         int option_index = 0;
 
-        opt = getopt_long (argc, argv, "b:c:r:s:", long_options, &option_index);
+        opt = getopt_long (argc, argv, "h:b:c:r:s:", long_options, &option_index);
 
         // Detect the end of the options.
         if (opt == -1) break;
@@ -50,6 +57,12 @@ void main(int argc, char **argv)
                 printf ("option %s set", long_options[option_index].name);
                 if (optarg) printf (" with arg %s", optarg);
                 printf ("\n");
+                break;
+
+            case '?':
+            case 'h':
+                is_help = 1;
+                print_usage();
                 break;
 
             case 'b':
@@ -68,35 +81,55 @@ void main(int argc, char **argv)
                 nb_requests = atoi(optarg);
                 break;
 
-            case '?':
-                // getopt_long already printed an error message.
-                break;
-
             default:
                 abort();
         }
     }
 
-    graph = compute_grid_graph(
-        grid_size,
-        unit_cost,
-        nb_requests,
-        nb_blockages
-    );
+    if (!is_help) {
+        graph = compute_grid_graph(
+            grid_size,
+            unit_cost,
+            nb_requests,
+            nb_blockages
+        );
 
-    if (is_output_meta) {
-        if (output_meta(graph)) {
-            printf("META output file ok.\n");
-        } else {
-            printf("META output file failed.\n");
+        if (is_output_meta) {
+            if (output_meta(graph)) {
+                printf("META output file ok.\n");
+            } else {
+                printf("META output file failed.\n");
+            }
+        }
+
+        if (is_output_opl) {
+            if (output_opl(graph)) {
+                printf("OPL output file ok.\n");
+            } else {
+                printf("OPL output file failed.\n");
+            }
         }
     }
+}
 
-    if (is_output_opl) {
-        if (output_opl(graph)) {
-            printf("OPL output file ok.\n");
-        } else {
-            printf("OPL output file failed.\n");
-        }
-    }
+void print_usage()
+{
+    printf("usage: ggeny [options]\n\n");
+    printf("  options:\n");
+    printf("    -b, --nb-blockages\t\tinteger number of blockages (default to 1).\n");
+    printf("    -c, --unit-cost\t\treal number of the cost set to every arcs (default to 1).\n");
+    printf("    -h, --help\t\t\tdisplay usages.\n");
+    printf("    -r, --nb-requests\t\tinteger number of flow requests (default to 0).\n");
+    printf("    -s, --grid-size\t\tinteger number of the grid size (default to 3).\n");
+    printf("\n");
+    printf("    --without-meta\t\tprevent output file from metadata format.\n");
+    printf("    --without-opl\t\tprevent output file from opl format.\n");
+    printf("\n");
+    printf("  examples:\n");
+    printf("    1. ggeny --without-opl:\n");
+    printf("       generate a default grid graph exported only on meta file with");
+    printf(" 3x3 vertices, arc costs of 1, 0 requests and 1 blockage.\n");
+    printf("    2. ggeny --without-meta -s 5 -b 4:\n");
+    printf("       generate a grid graph exported only on opl file with");
+    printf(" 5x5 vertices, arc costs of 1, 0 requests and 4 blockages.\n");
 }
