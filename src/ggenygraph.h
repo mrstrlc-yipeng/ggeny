@@ -44,6 +44,7 @@ typedef struct Graph {
     int nb_arcs;
     int nb_requests;
     int nb_blockages;
+    int per_multiarcs;
 
     Vertex **vertices;
     Arc **arcs;

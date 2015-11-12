@@ -38,6 +38,7 @@ Graph *init_grid_graph(int size, int nb_requests, int nb_blockages)
     g->nb_arcs = size * (size - 1) * 2;
     g->nb_requests = nb_requests;
     g->nb_blockages = nb_blockages;
+    g->per_multiarcs = 0;
 
     g->vertices = (Vertex **)malloc(sizeof(Vertex *) * g->nb_vertices);
     g->arcs = (Arc **)malloc(sizeof(Arc *) * g->nb_arcs);
@@ -357,6 +358,7 @@ void patch_multiarcs(Graph *graph, float percentage, int nb_lanes_max)
     }
 
     graph->nb_arcs += nb_arcs_to_add;
+    graph->per_multiarcs = (int) (percentage * 100);
 
     free(lanes_cnt);
 }
