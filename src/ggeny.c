@@ -13,6 +13,10 @@ static int is_help = 0;
 static int is_output_meta = 1;
 static int is_output_opl = 1;
 
+// flags for graph file input types
+static int is_input_meta = 0;
+static int is_input_opl = 0;
+
 void print_usage();
 void output(Graph *graph);
 
@@ -23,6 +27,9 @@ void main(int argc, char **argv)
     int unit_cost = 1;
     int nb_requests = 0;
     int nb_blockages = 1;
+
+    // arguments for graph load
+    char *filename;
 
     // percentage of multiarcs, [0-100]
     int per_multiarcs = 0;
@@ -37,11 +44,16 @@ void main(int argc, char **argv)
         {"without-meta", no_argument, &is_output_meta, 0},
         {"without-opl",  no_argument, &is_output_opl,  0},
 
+        {"input-meta", no_argument, &is_input_meta, 1},
+        {"input-opl",  no_argument, &is_input_opl,  1},
+
         {"nb-blockages",  required_argument, 0, 'b'},
         {"unit-cost",     required_argument, 0, 'c'},
         {"nb-requests",   required_argument, 0, 'r'},
         {"grid-size",     required_argument, 0, 's'},
         {"per-multiarcs", required_argument, 0, 'p'},
+
+        {"filename", required_argument, 0, 'f'},
         
         {0, 0, 0, 0}
     };
@@ -50,7 +62,7 @@ void main(int argc, char **argv)
         // getopt_long stores the option index here.
         int option_index = 0;
 
-        opt = getopt_long (argc, argv, "h:b:c:r:s:p:", long_options, &option_index);
+        opt = getopt_long (argc, argv, "h:b:c:r:s:p:f:", long_options, &option_index);
 
         // Detect the end of the options.
         if (opt == -1) break;
@@ -90,20 +102,32 @@ void main(int argc, char **argv)
                 per_multiarcs = atoi(optarg);
                 break;
 
+            case 'f':
+                filename = optarg;
+                break;
+
             default:
                 abort();
         }
     }
 
     if (!is_help) {
-        graph = compute_grid_graph(
-            grid_size,
-            unit_cost,
-            nb_requests,
-            nb_blockages
-        );
+        if (is_input_meta) {
+            graph = input_meta(filename);
+        } else if (is_input_opl) {
+            graph = input_opl(filename);
+        } else {
+            graph = compute_grid_graph(
+                grid_size,
+                unit_cost,
+                nb_requests,
+                nb_blockages
+            );
 
-        output(graph);
+            if (graph != NULL) output(graph);
+        }
+
+        if (graph == NULL) return;
 
         if (per_multiarcs > 0) {
             patch_multiarcs_2(graph, (float) per_multiarcs / 100);
@@ -124,9 +148,13 @@ void print_usage()
     printf("    -r, --nb-requests\t\tinteger number of flow requests (default to 0).\n");
     printf("    -s, --grid-size\t\tinteger number of the grid size (default to 3).\n");
     printf("    -p, --per-multiarcs\t\tinteger number of percentage of the multiarcs (default to 0).\n");
+    printf("    -f, --filename\t\tstring filename of the graph file to input.\n");
     printf("\n");
     printf("    --without-meta\t\tprevent output file from metadata format.\n");
     printf("    --without-opl\t\tprevent output file from opl format.\n");
+    printf("\n");
+    printf("    --input-meta\t\tspecify an input graph file of metadata format.\n");
+    printf("    --input-opl\t\tspecify an input graph file of opl format.\n");
     printf("\n");
     printf("  examples:\n");
     printf("    1. ggeny --without-opl:\n");
