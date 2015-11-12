@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <sys/time.h>
+#include <math.h>
 
 #include "../lib/hashids/hashids.h"
 
@@ -83,7 +84,7 @@ bool output_meta(Graph *graph)
     } else {
         fprintf(file, "INSTANCE_NAME\t%s\n", file_name);
         fprintf(file, "NB_VERTICES\t\t%d\n", graph->nb_vertices);
-        fprintf(file, "NB_ARCS\t\t%d\n", graph->nb_arcs);
+        fprintf(file, "NB_ARCS\t\t\t%d\n", graph->nb_arcs);
         fprintf(file, "NB_REQUESTS\t\t%d\n", graph->nb_requests);
         fprintf(file, "NB_BLOCKAGES\t%d\n", graph->nb_blockages);
         fprintf(file, "\n");
@@ -126,8 +127,8 @@ bool output_meta(Graph *graph)
         for (i = 0; i < graph->nb_blockages; i++) {
             b = graph->blockages[i];
             fprintf(file, "%d\t%d\n",
-                b->source,
-                b->target
+                b->source + 1,
+                b->target + 1
                 //b->earliest_start,
                 //b->latest_end,
                 //b->duration
@@ -219,3 +220,102 @@ bool output_opl(Graph *graph)
         return true;
     }
 }
+
+Graph* input_meta(char *file_name)
+{
+    int i;
+    const double epsilon = 1e-3;
+
+    Graph *graph;
+    int is_grid;
+    
+    // holders of metadata
+    char name[255];
+    int nb_vertices;
+    int nb_arcs;
+    int nb_requests;
+    int nb_blockages;
+    int size;
+
+    // holders of elements
+    Vertex *v;
+    Arc *a;
+    Request *r;
+    Blockage *b;
+
+    FILE *file = fopen(file_name, "r");
+
+    if (!file) {
+        printf("[ERR] failed to open file.\n");
+        return NULL;
+    }
+
+    fscanf(file, "INSTANCE_NAME\t%s\n", name);
+    fscanf(file, "NB_VERTICES%d\n", &nb_vertices);
+    fscanf(file, "NB_ARCS%d\n", &nb_arcs);
+    fscanf(file, "NB_REQUESTS%d\n", &nb_requests);
+    fscanf(file, "NB_BLOCKAGES%d\n", &nb_blockages);
+    
+    if (0 == nb_vertices || 0 == nb_arcs) {
+        printf("[ERR] empty graph.\n");
+        return NULL;
+    }
+
+    size = (int) sqrt(nb_vertices);
+    is_grid = abs(pow(size, 2) - nb_vertices) < epsilon;
+    if (!is_grid) {
+        // for now, if a graph is not square grid, we cannot do init.
+        printf("[ERR] the graph is not square grid. (size=%d, nbv=%d)\n", size, nb_vertices);
+        return NULL;
+    }
+
+    graph = init_grid_graph(size, nb_requests, nb_blockages);
+    graph->nb_arcs = nb_arcs;
+
+    // pass
+    fscanf(file, "\n");
+    fscanf(file, "VERTICES\n");
+
+    for (i = 0; i < nb_vertices; i++) {
+        v = graph->vertices[i];
+        fscanf(file, "%d\t%d\t%d\n", &v->id, &v->x, &v->y);
+        v->id -= 1;
+        v->nb_adjacencies = 0;
+    }
+
+    // pass
+    fscanf(file, "\n");
+    fscanf(file, "ARCS\n");
+
+    for (i = 0; i < nb_arcs; i++) {
+        a = graph->arcs[i];
+        int source, target, cost;
+        fscanf(file, "%d\t%d\t%d\n", &source, &target, &cost);
+        set_arc_attr(graph, i, source-1, target-1, cost);
+    }
+
+    // pass
+    fscanf(file, "\n");
+    fscanf(file, "REQUESTS\n");
+
+    // TODO
+
+    // pass
+    fscanf(file, "\n");
+    fscanf(file, "BLOCKAGES\n");
+    for (i = 0; i < nb_blockages; i++) {
+        b = graph->blockages[i];
+        int source, target;
+        fscanf(file, "%d\t%d\n", &source, &target);
+        b->id = i;
+        b->source = source - 1;
+        b->target = target - 1;
+    }
+
+    fclose(file);
+
+    return graph;
+}
+
+Graph* input_opl(char *file_name)
+{}
