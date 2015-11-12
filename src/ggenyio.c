@@ -25,14 +25,24 @@ char* get_file_name(Graph *graph, int is_opl)
     char *file_name = (char *)malloc(255);
 
     // generate the base of the file name
-    sprintf(file_name, "v%d_a%d_r%d_b%d_%s",
+    sprintf(file_name, "v%d_a%d_r%d_b%d",
         graph->nb_vertices,
         graph->nb_arcs,
         graph->nb_requests,
-        graph->nb_blockages,
-        is_opl ? "OPL" : "META"
+        graph->nb_blockages
     );
 
+    if (graph->per_multiarcs > 0) {
+        char cat[4];
+        sprintf(cat, "_%d", graph->per_multiarcs);
+        strcat(file_name, cat);
+    }
+
+    if (is_opl) {
+        strcat(file_name, "_OPL");
+    }
+
+    /*
     // force the number to be the current time in second
     gettimeofday(&g_tval, NULL);
     numbers[0] = g_tval.tv_sec;
@@ -46,7 +56,9 @@ char* get_file_name(Graph *graph, int is_opl)
     strcat(file_name, ".dat");
 
     hashids_free(hashids);
+    */
 
+    strcat(file_name, ".dat");
     return file_name;
 }
 
