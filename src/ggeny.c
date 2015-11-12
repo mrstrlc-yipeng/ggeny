@@ -14,6 +14,7 @@ static int is_output_meta = 1;
 static int is_output_opl = 1;
 
 void print_usage();
+void output(Graph *graph);
 
 void main(int argc, char **argv)
 {
@@ -22,6 +23,9 @@ void main(int argc, char **argv)
     int unit_cost = 1;
     int nb_requests = 0;
     int nb_blockages = 1;
+
+    // percentage of multiarcs, [0-100]
+    int per_multiarcs = 0;
 
     Graph *graph;
 
@@ -33,10 +37,11 @@ void main(int argc, char **argv)
         {"without-meta", no_argument, &is_output_meta, 0},
         {"without-opl",  no_argument, &is_output_opl,  0},
 
-        {"nb-blockages", required_argument, 0, 'b'},
-        {"unit-cost",    required_argument, 0, 'c'},
-        {"nb-requests",  required_argument, 0, 'r'},
-        {"grid-size",    required_argument, 0, 's'},
+        {"nb-blockages",  required_argument, 0, 'b'},
+        {"unit-cost",     required_argument, 0, 'c'},
+        {"nb-requests",   required_argument, 0, 'r'},
+        {"grid-size",     required_argument, 0, 's'},
+        {"per-multiarcs", required_argument, 0, 'p'},
         
         {0, 0, 0, 0}
     };
@@ -45,7 +50,7 @@ void main(int argc, char **argv)
         // getopt_long stores the option index here.
         int option_index = 0;
 
-        opt = getopt_long (argc, argv, "h:b:c:r:s:", long_options, &option_index);
+        opt = getopt_long (argc, argv, "h:b:c:r:s:p:", long_options, &option_index);
 
         // Detect the end of the options.
         if (opt == -1) break;
@@ -81,6 +86,10 @@ void main(int argc, char **argv)
                 nb_requests = atoi(optarg);
                 break;
 
+            case 'p':
+                per_multiarcs = atoi(optarg);
+                break;
+
             default:
                 abort();
         }
@@ -94,21 +103,14 @@ void main(int argc, char **argv)
             nb_blockages
         );
 
-        if (is_output_meta) {
-            if (output_meta(graph)) {
-                printf("META output file ok.\n");
-            } else {
-                printf("META output file failed.\n");
-            }
+        output(graph);
+
+        if (per_multiarcs > 0) {
+            patch_multiarcs_2(graph, (float) per_multiarcs / 100);
+            output(graph);
         }
 
-        if (is_output_opl) {
-            if (output_opl(graph)) {
-                printf("OPL output file ok.\n");
-            } else {
-                printf("OPL output file failed.\n");
-            }
-        }
+        free(graph);
     }
 }
 
@@ -121,6 +123,7 @@ void print_usage()
     printf("    -h, --help\t\t\tdisplay usages.\n");
     printf("    -r, --nb-requests\t\tinteger number of flow requests (default to 0).\n");
     printf("    -s, --grid-size\t\tinteger number of the grid size (default to 3).\n");
+    printf("    -p, --per-multiarcs\t\tinteger number of percentage of the multiarcs (default to 0).\n");
     printf("\n");
     printf("    --without-meta\t\tprevent output file from metadata format.\n");
     printf("    --without-opl\t\tprevent output file from opl format.\n");
@@ -132,4 +135,22 @@ void print_usage()
     printf("    2. ggeny --without-meta -s 5 -b 4:\n");
     printf("       generate a grid graph exported only on opl file with");
     printf(" 5x5 vertices, arc costs of 1, 0 requests and 4 blockages.\n");
+}
+
+void output(Graph *graph) {
+    if (is_output_meta) {
+        if (output_meta(graph)) {
+            printf("META output file ok.\n");
+        } else {
+            printf("META output file failed.\n");
+        }
+    }
+
+    if (is_output_opl) {
+        if (output_opl(graph)) {
+            printf("OPL output file ok.\n");
+        } else {
+            printf("OPL output file failed.\n");
+        }
+    }
 }
