@@ -60,6 +60,8 @@ extern int g_default_seed;
 // function declarations
 // major feature functions
 Graph* compute_grid_graph(int size, int unit_cost, int nb_requests, int nb_blockages);
+void patch_multiarcs_2(Graph *graph, float percentage);
+void patch_multiarcs(Graph *graph, float percentage, int nb_lanes_max);
 void free_graph(Graph *graph);
 
 // utilitiy functions

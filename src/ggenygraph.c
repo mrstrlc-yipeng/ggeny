@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
+#include <math.h>
 
 #include "ggenygraph.h"
 #include "ggenyrand.h"
@@ -300,6 +302,63 @@ void compute_blockages(Graph *graph)
     }
 
     free(marks);
+}
+
+void patch_multiarcs_2(Graph *graph, float percentage)
+{
+    patch_multiarcs(graph, percentage, 2);
+}
+
+void patch_multiarcs(Graph *graph, float percentage, int nb_lanes_max)
+{
+    int i;
+    
+    int random_id;
+    int new_arc_id;
+    Arc *random_arc;
+    
+    int nb_arcs_to_add;
+    int arcs_cnt = 0;
+    
+    int *lanes_cnt = (int *)malloc(sizeof(int) * graph->nb_arcs);
+
+    for (i = 0; i < graph->nb_arcs; i++) {
+        lanes_cnt[i] = 0;
+    }
+
+    // percentage cannot be greater than 1
+    if (percentage > 1) percentage = 1;
+    nb_arcs_to_add = (int)ceil(graph->nb_arcs * percentage);
+
+    // extend the memory allocation of arcs set
+    graph->arcs = (Arc **)realloc(graph->arcs, sizeof(Arc *) * (graph->nb_arcs + nb_arcs_to_add));
+    for (i = graph->nb_arcs; i < graph->nb_arcs + nb_arcs_to_add; i++) {
+        graph->arcs[i] = (Arc *)malloc(sizeof(Arc));
+    }
+
+    while (arcs_cnt < nb_arcs_to_add) {
+        random_id = rand_ij(&g_default_seed, 0, graph->nb_arcs);
+        if (lanes_cnt[random_id] >= nb_lanes_max -1) {
+            continue;
+        }
+        random_arc = graph->arcs[random_id];
+
+        new_arc_id = graph->nb_arcs + arcs_cnt;
+
+        // first duplicate the arc
+        // then decide whether to reverse the direction or not
+        set_arc_attr(graph, new_arc_id, random_arc->source, random_arc->target, random_arc->cost);
+        if (1 == rand_ij(&g_default_seed, 0, 2)) {
+            reverse_direction(graph->arcs[new_arc_id]);
+        }
+
+        lanes_cnt[random_id]++;
+        arcs_cnt++; 
+    }
+
+    graph->nb_arcs += nb_arcs_to_add;
+
+    free(lanes_cnt);
 }
 
 void free_graph(Graph *graph)
