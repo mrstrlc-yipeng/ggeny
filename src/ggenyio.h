@@ -15,7 +15,6 @@ extern const int FILE_NAME_OPL;
 bool output_meta(Graph *graph);
 bool output_opl(Graph *graph);
 Graph* input_meta(char *file_name);
-Graph* input_opl(char *file_name);
 
 // utilitiy functions
 char* get_file_name(Graph *graph, int is_opl);
