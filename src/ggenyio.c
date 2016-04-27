@@ -328,6 +328,3 @@ Graph* input_meta(char *file_name)
 
     return graph;
 }
-
-Graph* input_opl(char *file_name)
-{}

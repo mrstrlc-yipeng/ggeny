@@ -15,7 +15,6 @@ static int is_output_opl = 1;
 
 // flags for graph file input types
 static int is_input_meta = 0;
-static int is_input_opl = 0;
 
 void print_usage();
 void output(Graph *graph);
@@ -45,7 +44,6 @@ void main(int argc, char **argv)
         {"without-opl",  no_argument, &is_output_opl,  0},
 
         {"input-meta", no_argument, &is_input_meta, 1},
-        {"input-opl",  no_argument, &is_input_opl,  1},
 
         {"nb-blockages",  required_argument, 0, 'b'},
         {"unit-cost",     required_argument, 0, 'c'},
@@ -114,8 +112,6 @@ void main(int argc, char **argv)
     if (!is_help) {
         if (is_input_meta) {
             graph = input_meta(filename);
-        } else if (is_input_opl) {
-            graph = input_opl(filename);
         } else {
             graph = compute_grid_graph(
                 grid_size,
