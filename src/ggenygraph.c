@@ -312,7 +312,8 @@ void patch_multiarcs_2(Graph *graph, float percentage)
 
 void patch_multiarcs(Graph *graph, float percentage, int nb_lanes_max)
 {
-    int i;
+    int i, j;
+    int tmp_nb_multiarcs;
     
     int random_id;
     int new_arc_id;
@@ -321,10 +322,13 @@ void patch_multiarcs(Graph *graph, float percentage, int nb_lanes_max)
     int nb_arcs_to_add;
     int arcs_cnt = 0;
     
-    int *lanes_cnt = (int *)malloc(sizeof(int) * graph->nb_arcs);
-
-    for (i = 0; i < graph->nb_arcs; i++) {
-        lanes_cnt[i] = 0;
+    // Allocate a temporary v-v matrix for counting multiarcs between each pair of vertices
+    int **multiarcs_cnt = (int **)malloc(sizeof(int *) * graph->nb_vertices);
+    for (i = 0; i < graph->nb_vertices; i++) {
+        multiarcs_cnt[i] = (int *)malloc(sizeof(int) * graph->nb_vertices);
+        for (j = 0; j < graph->nb_vertices; j++) {
+            multiarcs_cnt[i][j] = 0;
+        }
     }
 
     // percentage cannot be greater than 1
@@ -339,10 +343,15 @@ void patch_multiarcs(Graph *graph, float percentage, int nb_lanes_max)
 
     while (arcs_cnt < nb_arcs_to_add) {
         random_id = rand_ij(&g_default_seed, 0, graph->nb_arcs);
-        if (lanes_cnt[random_id] >= nb_lanes_max -1) {
+        random_arc = graph->arcs[random_id];
+
+        // Verify the number of multiarcs between the source and target vertex of the selected arc
+        tmp_nb_multiarcs = multiarcs_cnt[random_arc->source][random_arc->target] + 
+            multiarcs_cnt[random_arc->target][random_arc->source];
+        if (tmp_nb_multiarcs >= nb_lanes_max) {
             continue;
         }
-        random_arc = graph->arcs[random_id];
+        multiarcs_cnt[random_arc->source][random_arc->target]++;
 
         new_arc_id = graph->nb_arcs + arcs_cnt;
 
@@ -353,14 +362,17 @@ void patch_multiarcs(Graph *graph, float percentage, int nb_lanes_max)
             reverse_direction(graph->arcs[new_arc_id]);
         }
 
-        lanes_cnt[random_id]++;
         arcs_cnt++; 
     }
 
     graph->nb_arcs += nb_arcs_to_add;
     graph->per_multiarcs = (int) (percentage * 100);
 
-    free(lanes_cnt);
+    // Free the counting matrix
+    for (i = 0; i < graph->nb_vertices; i++) {
+        free(multiarcs_cnt[i]);
+    }
+    free(multiarcs_cnt);
 }
 
 void free_graph(Graph *graph)
