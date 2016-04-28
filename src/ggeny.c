@@ -126,6 +126,7 @@ void main(int argc, char **argv)
         if (graph == NULL) return;
 
         if (per_multiarcs > 0) {
+            graph->per_multiarcs = per_multiarcs;
             patch_multiarcs_2(graph, (float) per_multiarcs / 100);
             output(graph);
         }
