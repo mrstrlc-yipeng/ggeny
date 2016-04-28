@@ -99,6 +99,9 @@ bool output_meta(Graph *graph)
         fprintf(file, "NB_ARCS\t\t\t%d\n", graph->nb_arcs);
         fprintf(file, "NB_REQUESTS\t\t%d\n", graph->nb_requests);
         fprintf(file, "NB_BLOCKAGES\t%d\n", graph->nb_blockages);
+        if (graph->per_multiarcs > 0) {
+            fprintf(file, "PER_MULTIARCS\t%d\n", graph->per_multiarcs);
+        }
         fprintf(file, "\n");
 
         fprintf(file, "VERTICES\n");        
