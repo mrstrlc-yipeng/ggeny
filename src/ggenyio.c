@@ -94,20 +94,20 @@ bool output_meta(Graph *graph)
         printf("[ERR] failed to open file.\n");
         return false;
     } else {
-        fprintf(file, "INSTANCE_NAME\t%s\n", file_name);
-        fprintf(file, "NB_VERTICES\t\t%d\n", graph->nb_vertices);
-        fprintf(file, "NB_ARCS\t\t\t%d\n", graph->nb_arcs);
-        fprintf(file, "NB_REQUESTS\t\t%d\n", graph->nb_requests);
-        fprintf(file, "NB_BLOCKAGES\t%d\n", graph->nb_blockages);
+        fprintf(file, "INSTANCE_NAME %s\n", file_name);
+        fprintf(file, "NB_VERTICES %d\n", graph->nb_vertices);
+        fprintf(file, "NB_ARCS %d\n", graph->nb_arcs);
+        fprintf(file, "NB_REQUESTS %d\n", graph->nb_requests);
+        fprintf(file, "NB_BLOCKAGES %d\n", graph->nb_blockages);
         if (graph->per_multiarcs > 0) {
-            fprintf(file, "PER_MULTIARCS\t%d\n", graph->per_multiarcs);
+            fprintf(file, "PER_MULTIARCS %d\n", graph->per_multiarcs);
         }
         fprintf(file, "\n");
 
         fprintf(file, "VERTICES\n");        
         for (i = 0; i < graph->nb_vertices; i++) {
             v = graph->vertices[i];
-            fprintf(file, "%d\t%d\t%d\n",
+            fprintf(file, "%d %d %d\n",
                 v->id + 1,
                 v->x,
                 v->y
@@ -118,7 +118,7 @@ bool output_meta(Graph *graph)
         fprintf(file, "ARCS\n"); 
         for (i = 0; i < graph->nb_arcs; i++) {
             a = graph->arcs[i];
-            fprintf(file, "%d\t%d\t%d\n",
+            fprintf(file, "%d %d %d\n",
                 a->source + 1,
                 a->target + 1,
                 a->cost
@@ -129,7 +129,7 @@ bool output_meta(Graph *graph)
         fprintf(file, "REQUESTS\n");
         for (i = 0; i < graph->nb_requests; i++) {
             r = graph->requests[i];
-            fprintf(file, "%d\t%d\t%d\t%d\n",
+            fprintf(file, "%d %d %d %d\n",
                 r->source,
                 r->target,
                 r->quantity,
@@ -141,7 +141,7 @@ bool output_meta(Graph *graph)
         fprintf(file, "BLOCKAGES\n");
         for (i = 0; i < graph->nb_blockages; i++) {
             b = graph->blockages[i];
-            fprintf(file, "%d\t%d\n",
+            fprintf(file, "%d %d\n",
                 b->source + 1,
                 b->target + 1
                 //b->earliest_start,
