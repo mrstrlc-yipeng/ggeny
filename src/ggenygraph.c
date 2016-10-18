@@ -331,6 +331,12 @@ void patch_multiarcs(Graph *graph, float percentage, int nb_lanes_max)
         }
     }
 
+    // Count arcs
+    for (i = 0; i < graph->nb_arcs; i++) {
+        random_arc = graph->arcs[i];
+        multiarcs_cnt[random_arc->source][random_arc->target]++;
+    }
+
     // percentage cannot be greater than 1
     if (percentage > 1) percentage = 1;
     nb_arcs_to_add = (int)ceil(graph->nb_arcs * percentage);

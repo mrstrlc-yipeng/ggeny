@@ -265,11 +265,11 @@ Graph* input_meta(char *file_name)
         return NULL;
     }
 
-    fscanf(file, "INSTANCE_NAME\t%s\n", name);
-    fscanf(file, "NB_VERTICES%d\n", &nb_vertices);
-    fscanf(file, "NB_ARCS%d\n", &nb_arcs);
-    fscanf(file, "NB_REQUESTS%d\n", &nb_requests);
-    fscanf(file, "NB_BLOCKAGES%d\n", &nb_blockages);
+    fscanf(file, "INSTANCE_NAME %s\n", name);
+    fscanf(file, "NB_VERTICES %d\n", &nb_vertices);
+    fscanf(file, "NB_ARCS %d\n", &nb_arcs);
+    fscanf(file, "NB_REQUESTS %d\n", &nb_requests);
+    fscanf(file, "NB_BLOCKAGES %d\n", &nb_blockages);
     
     if (0 == nb_vertices || 0 == nb_arcs) {
         printf("[ERR] empty graph.\n");
@@ -293,7 +293,7 @@ Graph* input_meta(char *file_name)
 
     for (i = 0; i < nb_vertices; i++) {
         v = graph->vertices[i];
-        fscanf(file, "%d\t%d\t%d\n", &v->id, &v->x, &v->y);
+        fscanf(file, "%d %d %d\n", &v->id, &v->x, &v->y);
         v->id -= 1;
         v->nb_adjacencies = 0;
     }
@@ -305,7 +305,7 @@ Graph* input_meta(char *file_name)
     for (i = 0; i < nb_arcs; i++) {
         a = graph->arcs[i];
         int source, target, cost;
-        fscanf(file, "%d\t%d\t%d\n", &source, &target, &cost);
+        fscanf(file, "%d %d %d\n", &source, &target, &cost);
         set_arc_attr(graph, i, source-1, target-1, cost);
     }
 
@@ -321,7 +321,7 @@ Graph* input_meta(char *file_name)
     for (i = 0; i < nb_blockages; i++) {
         b = graph->blockages[i];
         int source, target;
-        fscanf(file, "%d\t%d\n", &source, &target);
+        fscanf(file, "%d %d\n", &source, &target);
         b->id = i;
         b->source = source - 1;
         b->target = target - 1;
