@@ -20,7 +20,7 @@ void test_get_file_name(CuTest *tc)
     }
 
     char *actual = get_file_name(fake_graph, 0);
-    char *expected = "v9_a12_r0_b1_META";
+    char *expected = "v9_a12_r0_b1";
     CuAssertTrue(tc, strstr(actual, expected) != NULL);
 }
 
