@@ -369,6 +369,7 @@ void patch_multiarcs(Graph *graph, float percentage, int nb_lanes_max)
         }
 
         arcs_cnt++; 
+        printf("%d arcs patched as multiple arcs\n", arcs_cnt);
     }
 
     graph->nb_arcs += nb_arcs_to_add;
